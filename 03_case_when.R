@@ -2,9 +2,10 @@
 # TIDYVERSE – LEZIONE 2
 # mutate(), transmute(), case_when() e introduzione ai loop
 ############################################################
-
+library(tidylog)
 library(dplyr)
 library(palmerpenguins)
+library(ggplot2)
 
 data(penguins)
 
@@ -13,25 +14,28 @@ glimpse(penguins)
 
 
 ############################################################
-# 1 MUTATE
+# 1 MUTATE |> |> 
 ############################################################
 
 # mutate() serve per creare nuove colonne
 # oppure modificare colonne esistenti
 
 penguins |>
-  mutate(
-    body_mass_kg = body_mass_g / 1000
-  ) |>
-  head()
+  mutate(body_mass_kg = body_mass_g / 1000) |>
+  select(-body_mass_g)
+
+mutate(penguins, body_mass_kg = body_mass_g / 1000)
+
+penguins |>
+  mutate(body_mass_g = body_mass_g / 1000) 
 
 # Possiamo creare più colonne
 
-penguins |>
+penguins_mod <- penguins |>
   mutate(
     body_mass_kg = body_mass_g / 1000,
     bill_ratio = bill_length_mm / bill_depth_mm
-  ) |>
+    ) |>
   head()
 
 # Possiamo anche modificare una colonna esistente
@@ -52,7 +56,7 @@ penguins |>
 
 penguins |>
   transmute(
-    species,
+    species = as.character(species) ,
     body_mass_kg = body_mass_g / 1000
   ) |>
   head()
@@ -84,8 +88,18 @@ penguins |>
 # spesso si usavano loop
 
 mass <- penguins$body_mass_g
+class(mass)
+
+mass1 <- penguins |> 
+  pull(body_mass_g)
+
+ identical(mass, mass1)
 
 size_class <- vector(length = length(mass))
+
+for(i in 1:length(mass)){
+  print(i*i)
+}
 
 for(i in 1:length(mass)){
   
@@ -110,7 +124,7 @@ for(i in 1:length(mass)){
 }
 
 head(size_class)
-
+size_class
 # aggiungiamo la colonna
 
 penguins$size_class_loop <- size_class
@@ -123,17 +137,16 @@ penguins$size_class_loop <- size_class
 # case_when() è il modo tidyverse
 # per fare classificazioni multiple
 
-penguins |>
+pippo <- penguins |>
   mutate(
-    size_class = case_when(
+    size_class1 = case_when(
       body_mass_g > 5500 ~ "large",
       body_mass_g > 4000 ~ "medium",
       body_mass_g <= 4000 ~ "small",
       TRUE ~ NA_character_
     )
   ) |>
-  select(species, body_mass_g, size_class) |>
-  head()
+  select(species, body_mass_g, size_class_loop, size_class1, flipper_length_mm)
 
 
 ############################################################
@@ -157,7 +170,7 @@ penguins |>
 # 7 PIPELINE COMPLETA
 ############################################################
 
-penguins |>
+pluto <- penguins |>
   filter(!is.na(body_mass_g)) |>
   mutate(
     size_class = case_when(
@@ -166,9 +179,26 @@ penguins |>
       TRUE ~ "small"
     )
   ) |>
-  select(species, island, body_mass_g, size_class) |>
-  head()
+  select(species, island, body_mass_g, size_class)
 
+
+#### grafici ####
+library(ggplot2)
+ggplot(penguins, aes(x = body_mass_g, y = flipper_length_mm)) +
+  geom_point(aes(col = species))
+
+
+paperino <- ggplot(pippo, aes(x = size_class1, y =  flipper_length_mm, col =  size_class1)) +
+  geom_boxplot() 
+
+paperino
+
+ggsave(filename = "penguins.png", 
+       plot = paperino, 
+       width = 150, 
+       height = 60, 
+       units = "mm", 
+       dpi = 300)
 
 ############################################################
 # ESERCIZI
