@@ -1,8 +1,6 @@
 ############################################################
 # LEZIONE: WRITING FUNCTIONS IN R
-library(dplyr)
-library(tidyr)
-library(ggplot2)
+library(tidyverse)
 library(palmerpenguins)
 library(patchwork)
 
@@ -29,13 +27,20 @@ penguins |>
 penguins |> 
   dim()
 
+penguins |> 
+  head()
+
+names(penguins)
+
+view(penguins)
+
 ############################################################
 # 2) PERCHÉ SCRIVERE UNA FUNZIONE?
 ############################################################
 
 # Immaginiamo di voler fare un grafico solo per la specie Adelie
 
-penguins_clean |>
+penguins |>
   filter(species == "Adelie") |>
   ggplot(aes(x = bill_length_mm, y = bill_depth_mm)) +
   geom_point() +
@@ -65,32 +70,23 @@ penguins_clean |>
 #   codice
 # }
 
-# Facciamo il primo esempio più semplice possibile
+
 
 say_hello <- function(nome) {
   paste("Hello", nome)
 }
 
-say_hello("Michele")
+say_hello("Pippo")
 say_hello("Adelie")
-
-# In questo caso:
-# - say_hello è il nome della funzione
-# - nome è l'argomento
-# - la funzione restituisce una frase
 
 
 ############################################################
 # 4) FUNZIONE CHE RESTITUISCE UN DATA FRAME PER OGNI SPECIE
 ############################################################
 
-# Ora facciamo una funzione un po' più interessante:
-# dato il nome di una specie,
-# restituisce alcune statistiche riassuntive
-
 species_summary <- function(species_name) {
   
-  penguins |>
+  pippo <- penguins |>
     filter(species == species_name) |>
     summarise(
       n = n(),
@@ -100,9 +96,10 @@ species_summary <- function(species_name) {
       mean_body_mass = mean(body_mass_g, na.rm = T)
     )
   
+  print(pippo)
 }
 
-species_summary("Adelie")
+sum_adelie <- species_summary("Adelie")
 species_summary("Gentoo")
 
 # Questa funzione non restituisce più un numero singolo,
@@ -111,9 +108,6 @@ species_summary("Gentoo")
 ############################################################
 # 5) FUNZIONE CHE CREA UN GRAFICO
 ############################################################
-
-# Adesso iniziamo con qualcosa di più divertente:
-# una funzione che fa uno scatterplot per una specie scelta
 
 plot_species <- function(species_name) {
   
@@ -130,12 +124,12 @@ plot_species <- function(species_name) {
   
 }
 
-plot_species("Adelie")
-plot_species("Gentoo")
+fig1 <- plot_species("Adelie")
 
-# Questa è una funzione molto utile da far vedere,
-# perché gli studenti capiscono subito il vantaggio:
-# stesso schema, specie diversa
+fig1 +
+  theme_dark()
+
+plot_species("Gentoo")
 
 
 ############################################################
@@ -149,24 +143,44 @@ plot_island <- function(island_name) {
     filter(island == island_name)
   
   # 2) creo il grafico
-  p_i <- ggplot(dat_i, aes(x = flipper_length_mm, y = body_mass_g)) +
+  p_i <- ggplot(dat_i, aes(x = flipper_len, y = body_mass)) +
     geom_point(size = 2) +
     labs(
-      title = paste("Penguins on island:", island_name),
+      title = paste("Penguins on", island_name, "island"),
       x = "Flipper length (mm)",
       y = "Body mass (g)"
     ) +
     theme_minimal()
   
   # 3) restituisco entrambi come lista
-  return(list(
-    data = dat_i,
-    plot = p_i
-  ))
+  return(p_i)
+  #   list(
+  #   data = dat_i,
+  #   plot = p_i
+  # ))
 }
 
 
-plot_island("Dream")
+df_fig <- plot_island("Dream")
+
+class(df_fig)
+
+df_fig$data
+
+figura_dream <- df_fig$plot 
+prova1 <- df_fig[[2]]
+
+prova2 <- df_fig[2]
+
+prova2 +
+  theme_dark()
+
+prova1 +
+  theme_dark()
+
+class(prova1)
+class(prova2)
+
 plot_island("Biscoe")
 
 ############################################################
@@ -180,7 +194,7 @@ plot_island2 <- function(data = penguins, island_name) {
     filter(island == island_name)
   
   # 2) creo il grafico
-  p_i <- ggplot(dat_i, aes(x = flipper_length_mm, y = body_mass_g)) +
+  p_i <- ggplot(dat_i, aes(x = flipper_len, y = body_mass)) +
     geom_point(size = 2) +
     labs(
       title = paste("Penguins on island:", island_name),
@@ -197,8 +211,8 @@ plot_island2 <- function(data = penguins, island_name) {
 }
 
 
-plot_island2(data = penguins , "Dream")
-plot_island2(data = penguins , "Biscoe")
+plot_island2(data = penguins, island_name = "Dream")
+plot_island2(penguins, "Biscoe")
 
 ############################################################
 # 8) FUNZIONE CON N ARGOMENTI (N>2)
@@ -207,7 +221,7 @@ plot_island2(data = penguins , "Biscoe")
 
 plot_species_vars <- function(data, species_name, x_var, y_var) {
   
-  dat_i <- penguins |>
+  dat_i <- data |>
     filter(species == species_name)
   
   fig <- ggplot(dat_i, aes_string(x = x_var, y = y_var)) +
@@ -224,7 +238,14 @@ plot_species_vars <- function(data, species_name, x_var, y_var) {
 }
 
 # Esempi
-plot_species_vars(data = penguins, "Adelie", "bill_length_mm", "bill_depth_mm")
+p_tot <- plot_species_vars(data = penguins, "Adelie", "bill_length_mm", "bill_depth_mm")
+
+p_dream <- penguins |> 
+  filter(island == "Dream") |> 
+  plot_species_vars(species_name = "Adelie", x_var = "bill_length_mm", y_var = "bill_depth_mm")
+
+p_tot$figure + p_dream$figure
+
 plot_species_vars(data = penguins, "Gentoo", "flipper_length_mm", "body_mass_g")
 
 ############################################################
@@ -256,7 +277,11 @@ plot_species_type <- function(data, species_name, plot_type) {
     
   }
   
-  return(p + theme_minimal())
+  p1 <- p + 
+    theme_minimal() +
+    xlab("pluto")
+  
+    return(p1)
 }
 
 plot_species_type(data = penguins, "Adelie", "scatter")
@@ -291,14 +316,14 @@ plot_hist_by_species_var <- function(data, var) {
     plot_list[[i]] <- p_i
   }
   
-  wrap_plots(plot_list)
+  wrap_plots(plot_list, ncol = 2)
 }
 
 plot_hist_by_species_var(penguins, "body_mass_g")
 plot_hist_by_species_var(penguins, "flipper_length_mm")
 
 ############################################################
-# 11) UNIRE PIÙ GRAFICI
+# 10) UNIRE PIÙ GRAFICI
 ############################################################
 
 # Possiamo anche usare le funzioni per costruire rapidamente
@@ -319,11 +344,17 @@ fun_body_class_plot("Adelie") +
 c("Adelie", "Gentoo") |>
   map(plot_species)
 
-c("Dream", "Biscoe") |>
-  map(plot_island2, data = penguins)
+plot_db <- c("Dream", "Biscoe") |>
+  map(plot_island2, data = penguins) |> 
+  map(\(x) x[[2]])
+#function(x){ 
+# y <- x[[2]]
+# return(y)
+# }
+wrap_plots(plot_db, ncol = 2)
 
 ############################################################
-# 13) PROMEMORIA SULLA LOGICA DELLE FUNZIONI
+# 12) PROMEMORIA SULLA LOGICA DELLE FUNZIONI
 ############################################################
 
 # Una funzione:
@@ -336,7 +367,7 @@ c("Dream", "Biscoe") |>
 
 
 ############################################################
-# 16) ESERCIZI
+# 13) ESERCIZI
 ############################################################
 
 # Usare sempre penguins_clean
