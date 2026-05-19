@@ -8,16 +8,9 @@ format: pdf
 
 Questa esercitazione ha l’obiettivo di guidarvi attraverso un workflow completo di analisi dati in R, utilizzando un dataset reale.
 
-Dovrete:
-- creare una nuoava cartella e un nuovo progetto
-- scegliere un dataset reale (es. Zenodo)
-- importarlo e pulirlo
-- trasformarlo
-- analizzarlo
-- visualizzarlo
-- esportare i risultati
+Dovrete: - creare una nuoava cartella e un nuovo progetto - scegliere un dataset reale (es. Zenodo) - importarlo e pulirlo - trasformarlo - analizzarlo - visualizzarlo - esportare i risultati
 
----
+------------------------------------------------------------------------
 
 # Requisiti del dataset
 
@@ -30,44 +23,47 @@ Il dataset scelto deve avere almeno:
 
 Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
----
+------------------------------------------------------------------------
 
 # PARTE 1 – Scelta e importazione
 
-1. Scegli un dataset reale da Zenodo o altro repository.
+1.  Scegli un dataset reale da Zenodo o altro repository.
 
-2. Inserisci nel codice:
-   - titolo dataset  
-   - autore/i  
-   - anno  
-   - link o DOI  
-   - breve descrizione  
+2.  Inserisci nel codice:
 
-3. Organizza la cartella di lavoro:
-   - data_raw  
-   - data_clean  
-   - output  
-   - figures  
+    - titolo dataset\
+    - autore/i\
+    - anno\
+    - link o DOI\
+    - breve descrizione
 
-4. Importa il dataset in R.
+3.  Organizza la cartella di lavoro:
 
-5. Salvalo come `dati_raw`.
+    - data_raw\
+    - data_clean\
+    - output\
+    - figures
 
-6. Esplora il dataset:
-   - `head()`
-   - `str()`
-   - `dim()`
-   - `names()`
+4.  Importa il dataset in R.
 
----
+5.  Salvalo come `dati_raw`.
+
+6.  Esplora il dataset:
+
+    - `head()`
+    - `str()`
+    - `dim()`
+    - `names()`
+
+------------------------------------------------------------------------
 
 # PARTE 2 – Controllo qualità
 
-7. Conta righe e colonne.
+7.  Conta righe e colonne.
 
-8. Controlla nomi delle colonne.
+8.  Controlla nomi delle colonne.
 
-9. Rinomina colonne in modo chiaro.
+9.  Rinomina colonne in modo chiaro.
 
 10. Verifica presenza di NA.
 
@@ -79,7 +75,7 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 14. Converti i tipi se necessario.
 
----
+------------------------------------------------------------------------
 
 # PARTE 3 – Pulizia
 
@@ -91,7 +87,7 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 18. Commenta tutte le scelte fatte.
 
----
+------------------------------------------------------------------------
 
 # PARTE 4 – Nuove variabili
 
@@ -101,23 +97,20 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 21. Trasforma una variabile numerica in classi basate sui quartili.
 
-   Esempio:
-   - very low
-   - low
-   - high
-   - very high
+Esempio: - very low - low - high - very high
 
 22. Se manca una variabile categorica, creane una.
 
----
+------------------------------------------------------------------------
 
 # PARTE 5 – Analisi descrittiva
 
 23. Calcola:
-   - media
-   - deviazione standard
-   - minimo
-   - massimo
+
+- media
+- deviazione standard
+- minimo
+- massimo
 
 24. Usa `group_by()` + `summarise()`.
 
@@ -127,7 +120,7 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 27. Analizza almeno due variabili categoriali insieme.
 
----
+------------------------------------------------------------------------
 
 # PARTE 6 – Pivot
 
@@ -141,16 +134,17 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 32. Commenta differenza tra long e wide.
 
----
+------------------------------------------------------------------------
 
 # PARTE 7 – Grafici
 
 33. Scatterplot tra due variabili numeriche.
 
 34. Aggiungi:
-   - titolo
-   - etichette
-   - tema
+
+- titolo
+- etichette
+- tema
 
 35. Colora per categoria.
 
@@ -162,7 +156,7 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 39. Salva i grafici in `figures/`.
 
----
+------------------------------------------------------------------------
 
 # PARTE 8 – Output
 
@@ -174,7 +168,7 @@ Non utilizzare dataset già inclusi in R (iris, penguins, ecc.).
 
 43. Salva il dataset finale (`.rds`).
 
----
+------------------------------------------------------------------------
 
 # PARTE 9 – Interpretazione
 
@@ -186,7 +180,7 @@ Scrivi 5–10 righe rispondendo:
 - Grafico più informativo?
 - Risultato principale?
 
----
+------------------------------------------------------------------------
 
 # PARTE 10 – Consegna
 
@@ -198,7 +192,7 @@ Consegnare:
 - grafici esportati
 - breve interpretazione
 
----
+------------------------------------------------------------------------
 
 # PARTE 11 – GitHub (OBBLIGATORIO)
 
@@ -219,7 +213,7 @@ Il repository NON deve contenere:
 
 - I DATI nè grezzi nè puliti.
 
----
+------------------------------------------------------------------------
 
 # Note finali
 
@@ -228,4 +222,4 @@ Il repository NON deve contenere:
 - evitare dati inutili nel repository
 - utilizzare `.gitignore` se necessario
 
----
+------------------------------------------------------------------------

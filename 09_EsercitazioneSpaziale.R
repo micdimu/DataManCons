@@ -24,6 +24,40 @@
 
 # 4) caricare tutti i file
 
+
+nomi_files <- list.files(path = "SpatData/esercitazione/", 
+           pattern = ".csv",
+           full.names = T) 
+
+files <- list()
+for(i in 1:length(nomi_files)){
+  files[[i]] <- read.csv(nomi_files[i])
+}
+
+nomi_files |> 
+  map(read.csv) |> 
+  list_rbind()
+
+file1 <- read.csv("SpatData/esercitazione/MDM.csv")|> 
+  select(siteID = 1, x = 2, y = 3, SR = 4) |>
+  mutate(x = gsub(",", ".", x),
+         y = gsub(",", ".", y)) |>
+  mutate(x = as.numeric(x),
+         y = as.numeric(y))
+file2 <- read.csv("SpatData/esercitazione/MDM2.csv") |> 
+  select(siteID = 1, x = 2, y = 3, SR = 4) |>
+  mutate(x = gsub(",", ".", x),
+         y = gsub(",", ".", y)) |>
+  mutate(x = as.numeric(x),
+         y = as.numeric(y))
+  #|> 
+  # write.csv("SpatData/esercitazione/MDM2_mod.csv", row.names = F)
+  # 
+pippo <-list(file1, file2) |> 
+  list_rbind() 
+
+pippo_vect <- st_as_sf(pippo, coords = c("x", "y"), crs = 4326)
+plot(pippo_vect)
 # 5) controllare per ciascun dataset:
 # - nomi colonne
 # - tipi variabili
@@ -55,18 +89,27 @@
 
 # 9) convertire in oggetto spaziale (punti)
 
+
+vect_01 <- st_as_sf(file1, coords = c("x", "y"), crs = 4326)
+
 # 10) verificare:
 # - CRS
 # - geometria
 
-# 11) plot dei punti
+crs(vect_01)
+st_geometry(vect_01)
+st_geometry_type(vect_01)
 
+# 11) plot dei punti
+plot(vect_01)
 
 ############################################################
 # FASE 5 – RASTER
 ############################################################
 
 # 12) caricare DEM
+
+dem <- rast("SpatData/raster/elevation/ITA_elv_msk.tif")
 
 # 13) ritagliare sull’area dei punti
 
@@ -78,8 +121,16 @@
 ############################################################
 
 # 15) estrarre quota nei punti
-
+extract(dem, pippo_vect)
+pippo_elev <- terra::extract(dem, pippo_vect) 
 # 16) aggiungere quota al dataset
+
+pippo_vect$elev <- pippo_elev$ITA_elv_msk
+
+pippo_vect2 <- pippo_vect |> 
+  add_column(elev = pippo_elev$ITA_elv_msk, .after = "SR") |> 
+  #drop_na()
+  filter(!is.na(elev))
 
 # 17) controllare:
 # - valori realistici
@@ -102,7 +153,9 @@
 
 # 20) grafico:
 # elevazione (asse x) vs SR (asse y)
-
+ggplot(pippo_vect, aes(x = elev, y = SR)) +
+  geom_point() +
+  theme_minimal()
 # 21) interpretare relazione
 
 

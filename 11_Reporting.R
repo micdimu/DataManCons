@@ -1,14 +1,13 @@
 library(tidyverse)
 library(palmerpenguins)
 library(patchwork)
+library(ggpubr)
 library(gt)
 library(plotly)
 
-
-
 data(penguins)
 
-glipse(penguins)
+glimpse(penguins)
 
 ############################################################
 # 1) RECAP DI GGPLOT
@@ -98,7 +97,6 @@ ggplot(penguins,
            y = body_mass_g)) +
   geom_point(color = "red")
 
-
 # REGOLA CHIAVE:
 #
 # Dentro aes()  -> una variabile controlla un elemento grafico
@@ -117,6 +115,13 @@ ggplot(penguins,
            y = body_mass_g,
            shape = sex)) +
   geom_point()
+
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g,
+           group = sex)) +
+  geom_point(aes(shape = sex))
+
 
 
 # size dentro aes()
@@ -161,9 +166,17 @@ ggplot(penguins,
 ggplot(penguins,
        aes(x = flipper_length_mm,
            y = body_mass_g)) +
+  geom_point(col = "black", size = 2.5) +
   geom_point(aes(color = species)) +
-  geom_smooth(method = "lm", se = FALSE)
+  geom_smooth(mapping = aes(color = species), method = "lm", se = FALSE)
 
+ggplot(penguins,
+       aes(x = flipper_length_mm,
+           y = body_mass_g,
+           color = species)) +
+  geom_point(col = "black", size = 2.5) +
+  geom_point() +
+  geom_smooth(col = "red", method = "lm", se = FALSE)
 
 # Differenza importante:
 # nel primo caso anche geom_smooth() usa color = species,
@@ -219,8 +232,8 @@ species_count <- penguins |>
 species_count
 
 ggplot(species_count,
-       aes(x = species, y = n)) +
-  geom_col()
+       aes(x = species, y = n, fill = species)) +
+  geom_col(col = "black")
 
 
 # REGOLA:
@@ -255,9 +268,13 @@ ggplot(penguins,
 
 ggplot(penguins,
        aes(x = species, y = body_mass_g, fill = species)) +
+  geom_jitter(width = 0.15, alpha = 0.5, size = .5) +
   geom_violin(trim = FALSE, alpha = 0.6) +
   geom_boxplot(width = 0.15, alpha = 0.8)
 
+
+ggplot(penguins, aes(x = body_mass_g, fill = species))+
+  geom_density( alpha = .4)
 
 ############################################################
 # 10) MIGLIORARE UN GRAFICO: SCALE, THEME, LEGEND
@@ -614,18 +631,6 @@ ggplot(penguins,
 
 
 ############################################################
-# GT TABLE
-
-library(ggpubr)
-
-library(scales)
-library(sf)
-library(rnaturalearth)
-library(leaflet)
-
-
-
-############################################################
 # 17) TABELLA RIASSUNTIVA SEMPLICE
 ############################################################
 
@@ -692,8 +697,8 @@ summary_species |>
     sd_flipper = "SD flipper length"
   ) |>
   tab_options(
-    table.font.size = 13,
-    heading.title.font.size = 16,
+    table.font.size = 3,
+    heading.title.font.size = 22,
     heading.subtitle.font.size = 12
   )
 
@@ -702,6 +707,7 @@ summary_species |>
 # 20) GT TABLE CON COLORI
 ############################################################
 
+## scala di colori per la colonna mean_body_mass
 summary_species |>
   gt() |>
   tab_header(
@@ -727,6 +733,73 @@ summary_species |>
   )
 
 
+
+tab1 <- summary_species |>
+  gt() |>
+  tab_header(
+    title = "Summary of Palmer penguins by species",
+    subtitle = "Higher mean body mass is highlighted"
+  ) |>
+  fmt_number(
+    columns = c(mean_body_mass, sd_body_mass,
+                mean_flipper, sd_flipper),
+    decimals = 1
+  ) |>
+  cols_label(
+    species = "Species",
+    n = "N",
+    mean_body_mass = "Mean body mass (g)",
+    sd_body_mass = "SD body mass",
+    mean_flipper = "Mean flipper length (mm)",
+    sd_flipper = "SD flipper length"
+  ) 
+
+
+  tab1 |> 
+    tab_style(
+      
+    style = list(
+      cell_fill(color = "red"),
+      cell_text(weight = "bold", color = "white")
+    ),
+    
+    locations = cells_body(
+      columns = sd_body_mass,
+      rows = 2
+    )
+  )
+
+  
+  tab1 |> 
+    tab_style(
+      style = list(
+        cell_fill(color = "red"),
+        cell_text(weight = "bold", color = "white")
+      ),
+      locations = cells_body(
+        columns = sd_body_mass,
+        rows = mean_body_mass < 4000
+      )
+    ) |> 
+    tab_style(
+      style = list(
+        cell_fill(color = "blue"),
+        cell_text(weight = "bold", color = "white")
+      ),
+      locations = cells_body(
+        columns = mean_body_mass,
+        rows = mean_body_mass < 4000
+      )
+    )
+  
+  
+  
+  penguin_heavy <- summary_species |>
+    filter(mean_body_mass == max(mean_body_mass, na.rm = TRUE))
+  
+  species_heavy <- penguin_heavy$species
+  mass_heavy <- penguin_heavy$mean_body_mass
+
 ############################################################
 # 21) TABELLA PIÙ COMPLESSA: SPECIE × ISOLA
 ############################################################
@@ -738,7 +811,8 @@ summary_species_island <- penguins |>
     mean_body_mass = mean(body_mass_g, na.rm = T),
     mean_flipper = mean(flipper_length_mm, na.rm = T),
     .groups = "drop"
-  )
+  ) |> 
+  ungroup()
 
 summary_species_island |>
   gt(groupname_col = "species") |>
@@ -824,6 +898,9 @@ p_interactive <- ggplot(penguins,
     color = "Species"
   ) +
   theme_minimal()
+
+
+p_interactive
 
 ggplotly(p_interactive, tooltip = "text")
 
